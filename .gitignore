@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Environment and secrets (nunca commitar)
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs e debug
+logs/
+*.log
+npm-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import dns from 'node:dns';
+import * as dns from 'node:dns';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

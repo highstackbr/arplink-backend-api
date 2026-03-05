@@ -1,9 +1,13 @@
 import 'reflect-metadata';
+import dns from 'node:dns';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseMetadataInterceptor } from './common/interceptors/response-metadata.interceptor';
+
+// Preferir IPv4 na resolução DNS (evita ENETUNREACH quando a rede não tem IPv6)
+dns.setDefaultResultOrder('ipv4first');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

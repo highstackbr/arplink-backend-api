@@ -8,7 +8,7 @@ import { PG_POOL, createPgPool } from './postgres.pool';
     {
       provide: PG_POOL,
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
+      useFactory: async (config: ConfigService) => {
         const databaseUrl = config.get<string>('DATABASE_URL');
         if (!databaseUrl) {
           throw new Error('DATABASE_URL não configurado');

@@ -56,7 +56,7 @@ import { SupabaseJwtMiddleware } from './auth/middleware/supabase-jwt.middleware
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(requestIdMiddleware, SupabaseJwtMiddleware, httpLoggerMiddleware).forRoutes('*');
+    consumer.apply(requestIdMiddleware, SupabaseJwtMiddleware, httpLoggerMiddleware).forRoutes('{*splat}');
   }
 }
 

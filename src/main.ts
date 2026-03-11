@@ -10,6 +10,8 @@ import { ResponseMetadataInterceptor } from './common/interceptors/response-meta
 
 // Preferir IPv4 na resolução DNS (evita ENETUNREACH quando a rede não tem IPv6)
 dns.setDefaultResultOrder('ipv4first');
+// Usar DNS públicos na Render (o DNS interno pode não resolver *.supabase.co)
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

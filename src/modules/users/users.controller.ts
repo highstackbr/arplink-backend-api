@@ -28,6 +28,7 @@ const updateMeSchema = z.object({
   instagram: z.string().optional(),
   linkedin: z.string().optional(),
   youtube: z.string().optional(),
+  phone: z.string().optional(),
 });
 
 @Controller('users')
@@ -45,7 +46,8 @@ export class UsersController {
     const userId = (req.user as any)?.userId as string | undefined;
     if (!userId) throw new UnauthorizedException('Token ausente ou inválido');
     const role = (req.user as any)?.role as string | undefined;
-    return this.usersService.getOrCreateMe({ userId, role: role ?? null });
+    const email = (req.user as any)?.email as string | undefined;
+    return this.usersService.getOrCreateMe({ userId, role: role ?? null, email });
   }
 
   @Patch('me')

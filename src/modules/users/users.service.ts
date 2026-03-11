@@ -20,7 +20,7 @@ export class UsersService {
     @Inject(MEDIA_STORAGE) private readonly mediaStorage: MediaStorage,
   ) {}
 
-  private toUser(row: any) {
+  private toUser(row: any, email?: string | null) {
     return {
       id: row.id,
       name: row.name ?? '',
@@ -35,6 +35,8 @@ export class UsersService {
       instagram: row.instagram ?? undefined,
       linkedin: row.linkedin ?? undefined,
       youtube: row.youtube ?? undefined,
+      email: email ?? undefined,
+      phone: row.phone ?? undefined,
     };
   }
 
@@ -43,9 +45,9 @@ export class UsersService {
     return rows.map((r) => this.toUser(r));
   }
 
-  async getOrCreateMe(input: { userId: string; role?: string | null }) {
+  async getOrCreateMe(input: { userId: string; role?: string | null; email?: string | null }) {
     const row = await this.usersRepo.upsertProfileBase({ id: input.userId, role: input.role ?? null });
-    return this.toUser(row);
+    return this.toUser(row, input.email);
   }
 
   async getProfile(userId: string) {

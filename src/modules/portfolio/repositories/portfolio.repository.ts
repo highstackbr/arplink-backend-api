@@ -7,7 +7,6 @@ export type PortfolioRow = {
   user_id: string;
   title: string;
   description: string | null;
-  media_url: string | null;
   media_urls: any;
   created_at: string;
   updated_at: string;
@@ -21,7 +20,7 @@ export class PortfolioRepository {
     try {
       const result = await this.pool.query<PortfolioRow>(
         `
-        SELECT id, user_id, title, description, media_url, media_urls, created_at, updated_at
+        SELECT id, user_id, title, description, media_urls, created_at, updated_at
         FROM portfolio_items
         WHERE user_id = $1
         ORDER BY updated_at DESC
@@ -46,15 +45,14 @@ export class PortfolioRepository {
   }): Promise<PortfolioRow> {
     const result = await this.pool.query<PortfolioRow>(
       `
-      INSERT INTO portfolio_items (user_id, title, description, media_url, media_urls)
-      VALUES ($1, $2, $3, $4, $5::jsonb)
-      RETURNING id, user_id, title, description, media_url, media_urls, created_at, updated_at
+      INSERT INTO portfolio_items (user_id, title, description, media_urls)
+      VALUES ($1, $2, $3, $4::jsonb)
+      RETURNING id, user_id, title, description, media_urls, created_at, updated_at
       `,
       [
         input.userId,
         input.title,
         input.description ?? null,
-        input.mediaUrls[0] ?? null,
         JSON.stringify(input.mediaUrls ?? []),
       ],
     );
@@ -71,7 +69,7 @@ export class PortfolioRepository {
           description = COALESCE($4, description),
           updated_at = now()
       WHERE id = $1 AND user_id = $2
-      RETURNING id, user_id, title, description, media_url, media_urls, created_at, updated_at
+      RETURNING id, user_id, title, description, media_urls, created_at, updated_at
       `,
       [input.id, input.userId, input.title ?? null, input.description ?? null],
     );

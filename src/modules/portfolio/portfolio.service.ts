@@ -41,9 +41,7 @@ export class PortfolioService {
                 return [];
               }
             })()
-          : r.media_url
-            ? [r.media_url]
-            : [],
+          : [],
       created_at: r.created_at,
     }));
   }
@@ -102,7 +100,7 @@ export class PortfolioService {
     });
     if (!updated) throw new BadRequestException('Item não encontrado');
     const mediaUrls =
-      Array.isArray(updated.media_urls) ? (updated.media_urls as string[]) : updated.media_url ? [updated.media_url] : [];
+      Array.isArray(updated.media_urls) ? (updated.media_urls as string[]) : [];
     return {
       id: updated.id,
       user_id: updated.user_id,

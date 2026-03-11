@@ -6,6 +6,14 @@ import { PG_POOL } from '../../../database/postgres.pool';
 export class CommentLikesRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
+  async commentExists(commentId: string): Promise<boolean> {
+    const r = await this.pool.query(
+      `SELECT 1 FROM comments WHERE id = $1 LIMIT 1`,
+      [commentId],
+    );
+    return (r.rowCount ?? 0) > 0;
+  }
+
   async like(commentId: string, userId: string): Promise<void> {
     await this.pool.query(
       `

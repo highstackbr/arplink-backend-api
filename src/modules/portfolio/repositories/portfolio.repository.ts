@@ -46,14 +46,14 @@ export class PortfolioRepository {
     const result = await this.pool.query<PortfolioRow>(
       `
       INSERT INTO portfolio_items (user_id, title, description, media_urls)
-      VALUES ($1, $2, $3, $4::jsonb)
+      VALUES ($1, $2, $3, $4::text[])
       RETURNING id, user_id, title, description, media_urls, created_at, updated_at
       `,
       [
         input.userId,
         input.title,
         input.description ?? null,
-        JSON.stringify(input.mediaUrls ?? []),
+        input.mediaUrls ?? [],
       ],
     );
     const row = result.rows[0];

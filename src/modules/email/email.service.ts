@@ -23,11 +23,16 @@ export class EmailService {
     const from = this.config.get<string>('ARPLINK_EMAIL_FROM');
     if (host && user && pass && from) {
       this.from = from;
+      const port = this.config.get<number>('SMTP_PORT') ?? 587;
+      const secure = this.config.get<boolean>('SMTP_SECURE') ?? false;
       this.transporter = nodemailer.createTransport({
         host,
-        port: this.config.get<number>('SMTP_PORT') ?? 587,
-        secure: this.config.get<boolean>('SMTP_SECURE') ?? false,
+        port,
+        secure,
         auth: { user, pass },
+        connectionTimeout: 20_000,
+        greetingTimeout: 15_000,
+        socketTimeout: 30_000,
       });
       this.isConfigured = true;
     }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import type Transporter from 'nodemailer/lib/mailer';
@@ -14,6 +14,7 @@ const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 @Injectable()
 export class EmailService {
+  private readonly logger = new Logger(EmailService.name);
   private transporter: Transporter | null = null;
   private from: string = '';
   private brevoApiKey: string | null = null;
@@ -92,6 +93,8 @@ export class EmailService {
       const body = await res.text();
       throw new Error(`Brevo API: ${res.status} ${res.statusText}${body ? ` - ${body}` : ''}`);
     }
+    const data = (await res.json()) as { messageId?: string };
+    this.logger.log(`E-mail enviado com sucesso para ${options.to} (Brevo messageId: ${data?.messageId ?? 'n/a'})`);
   }
 
   private getFrontendUrl(): string {

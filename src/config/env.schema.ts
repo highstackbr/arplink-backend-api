@@ -36,6 +36,18 @@ export const envSchema = z.object({
   CLOUDFLARE_STREAM_KEY_ID: optionalNonEmptyString(),
   CLOUDFLARE_STREAM_PRIVATE_KEY: optionalNonEmptyString(),
   CLOUDFLARE_CUSTOMER_SUBDOMAIN: optionalNonEmptyString(),
+
+  // E-mail ARPLINK (SMTP) – cadastro e recuperação de senha
+  SMTP_HOST: optionalNonEmptyString(),
+  SMTP_PORT: z.preprocess((v) => (v !== undefined && v !== '' ? Number(v) : undefined), z.number().int().positive().optional()),
+  SMTP_SECURE: z.preprocess(
+    (v) => (v === undefined || v === '' ? undefined : (typeof v === 'string' ? v.trim().toLowerCase() === 'true' : Boolean(v))),
+    z.boolean().optional(),
+  ),
+  SMTP_USER: optionalNonEmptyString(),
+  SMTP_PASS: optionalNonEmptyString(),
+  ARPLINK_EMAIL_FROM: optionalNonEmptyString(),
+  FRONTEND_URL: optionalNonEmptyString(),
 });
 
 export type Env = z.infer<typeof envSchema>;

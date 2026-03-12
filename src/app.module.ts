@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { loadEnv } from './config/env';
 import { AuthModule } from './auth/auth.module';
+import { EmailModule } from './modules/email/email.module';
 import { AuthRequiredGuard } from './auth/guards/auth-required.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { DatabaseModule } from './database/database.module';
@@ -28,6 +29,7 @@ import { SupabaseJwtMiddleware } from './auth/middleware/supabase-jwt.middleware
       isGlobal: true,
       validate: (rawEnv) => loadEnv(rawEnv),
     }),
+    EmailModule,
     AuthModule,
     DatabaseModule,
     HealthModule,

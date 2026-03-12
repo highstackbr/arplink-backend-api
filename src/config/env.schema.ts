@@ -37,7 +37,10 @@ export const envSchema = z.object({
   CLOUDFLARE_STREAM_PRIVATE_KEY: optionalNonEmptyString(),
   CLOUDFLARE_CUSTOMER_SUBDOMAIN: optionalNonEmptyString(),
 
-  // E-mail ARPLINK (SMTP) – cadastro e recuperação de senha
+  // E-mail ARPLINK – cadastro e recuperação de senha
+  // Opção 1 (recomendado na Render): BREVO_API_KEY + ARPLINK_EMAIL_FROM (usa API HTTPS, sem bloqueio de porta)
+  // Opção 2: SMTP_* (pode dar ETIMEDOUT em alguns clouds)
+  BREVO_API_KEY: optionalNonEmptyString(),
   SMTP_HOST: optionalNonEmptyString(),
   SMTP_PORT: z.preprocess((v) => (v !== undefined && v !== '' ? Number(v) : undefined), z.number().int().positive().optional()),
   SMTP_SECURE: z.preprocess(

@@ -10,17 +10,29 @@ export interface SendMailOptions {
   text?: string;
 }
 
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+
 @Injectable()
 export class EmailService {
   private transporter: Transporter | null = null;
   private from: string = '';
+  private brevoApiKey: string | null = null;
   private isConfigured = false;
 
   constructor(private readonly config: ConfigService) {
+    const from = this.config.get<string>('ARPLINK_EMAIL_FROM');
+    const apiKey = this.config.get<string>('BREVO_API_KEY');
+
+    if (apiKey && from) {
+      this.brevoApiKey = apiKey;
+      this.from = from;
+      this.isConfigured = true;
+      return;
+    }
+
     const host = this.config.get<string>('SMTP_HOST');
     const user = this.config.get<string>('SMTP_USER');
     const pass = this.config.get<string>('SMTP_PASS');
-    const from = this.config.get<string>('ARPLINK_EMAIL_FROM');
     if (host && user && pass && from) {
       this.from = from;
       const port = this.config.get<number>('SMTP_PORT') ?? 587;
@@ -43,8 +55,14 @@ export class EmailService {
   }
 
   async sendMail(options: SendMailOptions): Promise<void> {
+    if (this.brevoApiKey) {
+      await this.sendViaBrevoApi(options);
+      return;
+    }
     if (!this.transporter) {
-      throw new Error('E-mail não configurado. Defina SMTP_HOST, SMTP_USER, SMTP_PASS e ARPLINK_EMAIL_FROM.');
+      throw new Error(
+        'E-mail não configurado. Defina BREVO_API_KEY + ARPLINK_EMAIL_FROM (recomendado) ou SMTP_HOST, SMTP_USER, SMTP_PASS e ARPLINK_EMAIL_FROM.',
+      );
     }
     await this.transporter.sendMail({
       from: this.from,
@@ -53,6 +71,27 @@ export class EmailService {
       html: options.html,
       text: options.text,
     });
+  }
+
+  private async sendViaBrevoApi(options: SendMailOptions): Promise<void> {
+    const res = await fetch(BREVO_API_URL, {
+      method: 'POST',
+      headers: {
+        'api-key': this.brevoApiKey!,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { email: this.from, name: 'ARP LINK' },
+        to: [{ email: options.to }],
+        subject: options.subject,
+        htmlContent: options.html,
+        textContent: options.text ?? undefined,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Brevo API: ${res.status} ${res.statusText}${body ? ` - ${body}` : ''}`);
+    }
   }
 
   private getFrontendUrl(): string {

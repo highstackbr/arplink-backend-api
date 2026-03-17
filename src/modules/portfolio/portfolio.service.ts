@@ -113,7 +113,10 @@ export class PortfolioService {
 
   async delete(input: { id: string; userId: string }) {
     const ok = await this.repo.delete(input);
-    return { ok };
+    if (!ok) {
+      throw new BadRequestException('Item não encontrado ou não pertence ao seu portfólio');
+    }
+    return { ok: true };
   }
 }
 

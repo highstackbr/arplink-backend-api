@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Query,
   Req,
@@ -76,6 +78,16 @@ export class PostsController {
       main,
       extras,
     });
+  }
+
+  @Delete(':postId')
+  async delete(@Req() req: Request, @Param('postId') postId: string) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('Token ausente ou inválido');
+    }
+    await this.postsService.deletePost({ postId, userId });
+    return { ok: true };
   }
 }
 

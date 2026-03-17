@@ -19,7 +19,13 @@ import { AuthPublicController } from './auth-public.controller';
     PasswordResetRepository,
     SupabaseAuthAdminService,
   ],
-  exports: [SupabaseJwksService, SupabaseJwtGuard, SupabaseJwtMiddleware, UserRolesRepository],
+  exports: [
+    SupabaseJwksService,
+    SupabaseJwtGuard,
+    SupabaseJwtMiddleware,
+    UserRolesRepository,
+    SupabaseAuthAdminService,
+  ],
 })
 export class AuthModule {}
 

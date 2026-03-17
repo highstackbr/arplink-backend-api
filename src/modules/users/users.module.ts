@@ -6,9 +6,11 @@ import { UsersService } from './users.service';
 import { UsersRepository } from './repositories/users.repository';
 import { SupabaseMediaStorage } from '../posts/media/supabase-media-storage';
 import { MEDIA_STORAGE } from '../posts/media/media-storage';
+import { AuthModule } from '../../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MulterModule.register({
       storage: memoryStorage(),
       limits: {

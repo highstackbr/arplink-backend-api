@@ -23,5 +23,30 @@ export class PostLikesRepository {
       [postId, userId],
     );
   }
+
+  async listByPost(postId: string): Promise<
+    {
+      user_id: string;
+      name: string | null;
+      username: string | null;
+      avatar_url: string | null;
+    }[]
+  > {
+    const result = await this.pool.query(
+      `
+      SELECT
+        pl.user_id,
+        pr.name,
+        pr.username,
+        pr.avatar_url
+      FROM post_likes pl
+      JOIN profiles pr ON pr.id = pl.user_id
+      WHERE pl.post_id = $1
+      ORDER BY pl.created_at DESC
+      `,
+      [postId],
+    );
+    return result.rows as any;
+  }
 }
 

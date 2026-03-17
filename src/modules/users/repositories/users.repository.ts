@@ -15,6 +15,8 @@ export type ProfileRow = {
   instagram: string | null;
   linkedin: string | null;
   youtube: string | null;
+  twitter: string | null;
+  tiktok: string | null;
   phone: string | null;
   followers: number;
   following: number;
@@ -36,7 +38,7 @@ export class UsersRepository {
         user_type AS role,
         role AS auth_role,
         name, username, bio, avatar_url, banner_url,
-        facebook, instagram, linkedin, youtube, phone,
+        facebook, instagram, linkedin, youtube, twitter, tiktok, phone,
         (SELECT COUNT(*)::int FROM follows f1 WHERE f1.target_id = profiles.id)   AS followers,
         (SELECT COUNT(*)::int FROM follows f2 WHERE f2.follower_id = profiles.id) AS following
       `,
@@ -53,7 +55,7 @@ export class UsersRepository {
         user_type AS role,
         role AS auth_role,
         name, username, bio, avatar_url, banner_url,
-        facebook, instagram, linkedin, youtube, phone,
+        facebook, instagram, linkedin, youtube, twitter, tiktok, phone,
         (SELECT COUNT(*)::int FROM follows f1 WHERE f1.target_id = profiles.id)   AS followers,
         (SELECT COUNT(*)::int FROM follows f2 WHERE f2.follower_id = profiles.id) AS following
       FROM profiles
@@ -73,7 +75,7 @@ export class UsersRepository {
         user_type AS role,
         role AS auth_role,
         name, username, bio, avatar_url, banner_url,
-        facebook, instagram, linkedin, youtube, phone,
+        facebook, instagram, linkedin, youtube, twitter, tiktok, phone,
         (SELECT COUNT(*)::int FROM follows f1 WHERE f1.target_id = profiles.id)   AS followers,
         (SELECT COUNT(*)::int FROM follows f2 WHERE f2.follower_id = profiles.id) AS following
       FROM profiles
@@ -101,14 +103,16 @@ export class UsersRepository {
           instagram  = COALESCE($8, instagram),
           linkedin   = COALESCE($9, linkedin),
           youtube    = COALESCE($10, youtube),
-          phone      = COALESCE($11, phone)
+          twitter    = COALESCE($11, twitter),
+          tiktok     = COALESCE($12, tiktok),
+          phone      = COALESCE($13, phone)
       WHERE id = $1
       RETURNING
         id,
         user_type AS role,
         role AS auth_role,
         name, username, bio, avatar_url, banner_url,
-        facebook, instagram, linkedin, youtube, phone,
+        facebook, instagram, linkedin, youtube, twitter, tiktok, phone,
         (SELECT COUNT(*)::int FROM follows f1 WHERE f1.target_id = profiles.id)   AS followers,
         (SELECT COUNT(*)::int FROM follows f2 WHERE f2.follower_id = profiles.id) AS following
       `,
@@ -123,10 +127,23 @@ export class UsersRepository {
         patch.instagram ?? null,
         patch.linkedin ?? null,
         patch.youtube ?? null,
+        patch.twitter ?? null,
+        patch.tiktok ?? null,
         patch.phone ?? null,
       ],
     );
     return result.rows[0] ?? null;
+  }
+
+  async deleteById(userId: string): Promise<boolean> {
+    const result = await this.pool.query(
+      `
+      DELETE FROM profiles
+      WHERE id = $1
+      `,
+      [userId],
+    );
+    return (result.rowCount ?? 0) > 0;
   }
 
   async search(query: string, limit = 5): Promise<ProfileRow[]> {

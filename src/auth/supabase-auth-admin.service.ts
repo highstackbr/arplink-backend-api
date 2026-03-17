@@ -65,4 +65,12 @@ export class SupabaseAuthAdminService {
     });
     if (error) throw new BadRequestException(error.message || 'Falha ao atualizar senha.');
   }
+
+  /** Remove o usuário do Supabase Auth (impede novo login). Uso ao excluir conta. */
+  async deleteUser(userId: string): Promise<void> {
+    const { error } = await this.supabase.auth.admin.deleteUser(userId);
+    if (error) {
+      throw new BadRequestException(error.message || 'Falha ao excluir usuário da autenticação.');
+    }
+  }
 }

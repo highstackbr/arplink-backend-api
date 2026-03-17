@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Query,
   Req,
@@ -29,6 +31,22 @@ export class MessagesController {
     return this.messagesService.getHistory(userId, withUserId);
   }
 
+  @Get('unread-counts')
+  async getUnreadCounts(@Req() req: Request) {
+    const userId = req.user?.userId;
+    if (!userId) throw new UnauthorizedException('Token ausente ou inválido');
+    return this.messagesService.getUnreadCounts(userId);
+  }
+
+  @Post('read')
+  async markAsRead(@Req() req: Request, @Query('with') withUserId: string) {
+    const userId = req.user?.userId;
+    if (!userId) throw new UnauthorizedException('Token ausente ou inválido');
+    if (!withUserId) throw new BadRequestException('Parâmetro "with" é obrigatório');
+    await this.messagesService.markConversationAsRead(userId, withUserId);
+    return { ok: true };
+  }
+
   @Post()
   async send(@Req() req: Request, @Body() body: unknown) {
     const userId = req.user?.userId;
@@ -45,5 +63,14 @@ export class MessagesController {
     }
 
     return this.messagesService.send(userId, dto);
+  }
+
+  @Delete(':messageId')
+  async delete(@Req() req: Request, @Param('messageId') messageId: string) {
+    const userId = req.user?.userId;
+    if (!userId) throw new UnauthorizedException('Token ausente ou inválido');
+
+    await this.messagesService.delete(messageId, userId);
+    return { ok: true };
   }
 }

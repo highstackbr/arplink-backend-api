@@ -2,6 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import type { CreateUserDto } from './dto/create-user.dto';
 import { MEDIA_STORAGE, type MediaStorage } from '../posts/media/media-storage';
 import { UsersRepository } from './repositories/users.repository';
+import { SupabaseAuthAdminService } from '../../auth/supabase-auth-admin.service';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -18,6 +19,7 @@ export class UsersService {
   constructor(
     private readonly usersRepo: UsersRepository,
     @Inject(MEDIA_STORAGE) private readonly mediaStorage: MediaStorage,
+    private readonly supabaseAuthAdmin: SupabaseAuthAdminService,
   ) {}
 
   private toUser(row: any, email?: string | null) {
@@ -35,6 +37,8 @@ export class UsersService {
       instagram: row.instagram ?? undefined,
       linkedin: row.linkedin ?? undefined,
       youtube: row.youtube ?? undefined,
+      twitter: row.twitter ?? undefined,
+      tiktok: row.tiktok ?? undefined,
       email: email ?? undefined,
       phone: row.phone ?? undefined,
     };
@@ -59,6 +63,21 @@ export class UsersService {
     await this.usersRepo.upsertProfileBase({ id: userId });
     const updated = await this.usersRepo.updateById(userId, patch);
     return updated ? this.toUser(updated) : null;
+  }
+
+  async deleteMe(userId: string) {
+    try {
+      await this.supabaseAuthAdmin.deleteUser(userId);
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'message' in err ? String((err as any).message) : null;
+      throw new BadRequestException(
+        msg ?? 'Não foi possível excluir o usuário da autenticação. Tente novamente.',
+      );
+    }
+    const ok = await this.usersRepo.deleteById(userId);
+    if (!ok) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
   }
 
   async searchProfiles(query: string, limit = 5) {

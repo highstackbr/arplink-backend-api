@@ -97,5 +97,25 @@ export class PostsRepository {
     );
     return result.rows;
   }
+
+  async findById(postId: string): Promise<Pick<PostRow, 'id' | 'content' | 'media_url' | 'media_type'> | null> {
+    const result = await this.pool.query<PostRow>(
+      `SELECT id, content, media_url, media_type FROM posts WHERE id = $1`,
+      [postId],
+    );
+    return result.rows[0] ?? null;
+  }
+
+  async deletePostByOwner(input: { postId: string; userId: string }): Promise<boolean> {
+    const result = await this.pool.query(
+      `
+      DELETE FROM posts
+      WHERE id = $1
+        AND user_id = $2
+      `,
+      [input.postId, input.userId],
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
 }
 

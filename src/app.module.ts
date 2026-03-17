@@ -19,6 +19,7 @@ import { CommentsModule } from './modules/comments/comments.module';
 import { CommentLikesModule } from './modules/comment-likes/comment-likes.module';
 import { CertificatesModule } from './modules/certificates/certificates.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
+import { SharesModule } from './modules/shares/shares.module';
 import { httpLoggerMiddleware } from './common/middleware/http-logger.middleware';
 import { requestIdMiddleware } from './common/middleware/request-id.middleware';
 import { SupabaseJwtMiddleware } from './auth/middleware/supabase-jwt.middleware';
@@ -44,6 +45,7 @@ import { SupabaseJwtMiddleware } from './auth/middleware/supabase-jwt.middleware
     MessagesModule,
     UploadModule,
     VideosModule,
+    SharesModule,
   ],
   providers: [
     {

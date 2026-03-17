@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -28,6 +29,8 @@ const updateMeSchema = z.object({
   instagram: z.string().optional(),
   linkedin: z.string().optional(),
   youtube: z.string().optional(),
+  twitter: z.string().optional(),
+  tiktok: z.string().optional(),
   phone: z.string().optional(),
 });
 
@@ -56,6 +59,14 @@ export class UsersController {
     if (!userId) throw new UnauthorizedException('Token ausente ou inválido');
     const patch = updateMeSchema.parse(body);
     return this.usersService.updateMe(userId, patch);
+  }
+
+  @Delete('me')
+  async deleteMe(@Req() req: Request) {
+    const userId = (req.user as any)?.userId as string | undefined;
+    if (!userId) throw new UnauthorizedException('Token ausente ou inválido');
+    await this.usersService.deleteMe(userId);
+    return { ok: true };
   }
 
   @Post('me/banner')
@@ -94,7 +105,10 @@ export class UsersController {
     const list = Array.isArray(exclude) ? exclude : exclude ? [exclude] : [];
     const n = limit ? Number(limit) : 5;
     const lim = Number.isFinite(n) ? Math.max(1, Math.min(50, n)) : 5;
-    const excludeIds = currentUserId ? [currentUserId, ...list] : list;
+    // Sempre excluir o próprio perfil quando houver usuário autenticado
+    const excludeIds = currentUserId
+      ? Array.from(new Set([currentUserId, ...list].filter(Boolean)))
+      : Array.from(new Set(list.filter(Boolean)));
     return this.usersService.getSuggestions(excludeIds, lim);
   }
 

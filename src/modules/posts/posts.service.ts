@@ -150,5 +150,20 @@ export class PostsService {
       createdAt: post.created_at,
     };
   }
+
+  /** Retorna conteúdo e mídia do post para preview (ex.: compartilhamento no chat). */
+  async getPreviewById(postId: string): Promise<{ content: string; media_url: string | null; media_type: 'image' | 'video' } | null> {
+    const row = await this.postsRepo.findById(postId);
+    if (!row) return null;
+    const mediaType = row.media_type === 'video' ? 'video' : 'image';
+    return { content: row.content, media_url: row.media_url, media_type: mediaType };
+  }
+
+  async deletePost(args: { postId: string; userId: string }) {
+    const deleted = await this.postsRepo.deletePostByOwner(args);
+    if (!deleted) {
+      throw new BadRequestException('Post não encontrado ou não pertence ao usuário');
+    }
+  }
 }
 

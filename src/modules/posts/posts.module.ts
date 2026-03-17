@@ -27,6 +27,7 @@ import { MEDIA_STORAGE } from './media/media-storage';
       useExisting: SupabaseMediaStorage,
     },
   ],
+  exports: [PostsService],
 })
 export class PostsModule {}
 

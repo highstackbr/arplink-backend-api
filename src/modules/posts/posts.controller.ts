@@ -27,6 +27,8 @@ export class PostsController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
     @Query('userId') userId?: string,
+    /** Sem `userId`: `following` (padrão) ou `global` para todos os posts. */
+    @Query('scope') scope?: string,
   ) {
     const viewerId = (req.user as any)?.userId as string | undefined;
     if (!viewerId) throw new UnauthorizedException('Token ausente ou inválido');
@@ -35,7 +37,15 @@ export class PostsController {
     const safeLimit = Number.isFinite(lim) ? Math.max(1, Math.min(50, lim)) : 20;
     const safeOffset = Number.isFinite(off) ? Math.max(0, off) : 0;
     const authorId = userId ? String(userId) : null;
-    return this.postsService.listFeed({ viewerId, limit: safeLimit, offset: safeOffset, authorId });
+    const feedScope: 'global' | 'following' =
+      authorId != null ? 'following' : scope === 'global' ? 'global' : 'following';
+    return this.postsService.listFeed({
+      viewerId,
+      limit: safeLimit,
+      offset: safeOffset,
+      authorId,
+      feedScope,
+    });
   }
 
   @Post()

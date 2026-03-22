@@ -29,7 +29,13 @@ export class PostsService {
     @Inject(MEDIA_STORAGE) private readonly mediaStorage: MediaStorage,
   ) {}
 
-  async listFeed(args: { viewerId: string; limit: number; offset: number; authorId?: string | null }) {
+  async listFeed(args: {
+    viewerId: string;
+    limit: number;
+    offset: number;
+    authorId?: string | null;
+    feedScope?: 'global' | 'following';
+  }) {
     const rows = await this.postsRepo.listFeed(args);
     return rows.map((r) => ({
       id: r.id,

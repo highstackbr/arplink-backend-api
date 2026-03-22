@@ -56,7 +56,10 @@ export class PostsRepository {
     limit: number;
     offset: number;
     authorId?: string | null;
+    /** Sem `authorId`: `following` = eu + quem sigo; `global` = todos os posts. */
+    feedScope?: 'global' | 'following';
   }): Promise<FeedPostRow[]> {
+    const feedScope = input.authorId ? 'global' : (input.feedScope ?? 'following');
     const result = await this.pool.query<FeedPostRow>(
       `
       SELECT
@@ -89,11 +92,23 @@ export class PostsRepository {
         FROM comments
         GROUP BY post_id
       ) cm ON cm.post_id = p.id
-      WHERE ($4::uuid IS NULL OR p.user_id = $4::uuid)
+      WHERE (
+        CASE
+          WHEN $4::uuid IS NOT NULL THEN p.user_id = $4::uuid
+          WHEN $5::text = 'following' THEN (
+            p.user_id = $1::uuid
+            OR EXISTS (
+              SELECT 1 FROM follows f
+              WHERE f.follower_id = $1::uuid AND f.target_id = p.user_id
+            )
+          )
+          ELSE TRUE
+        END
+      )
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3
       `,
-      [input.viewerId, input.limit, input.offset, input.authorId ?? null],
+      [input.viewerId, input.limit, input.offset, input.authorId ?? null, feedScope],
     );
     return result.rows;
   }
